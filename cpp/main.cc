@@ -18,18 +18,29 @@ std::vector<long double> compute_pmf(const std::vector<long double> &p_vector) {
 
 int main() {
   const auto N = 15000;
-  const auto COUNT = 10;
-  auto total_ms = 0.0;
-  std::vector<long double> p_vector(N, 0.0);
-  for (auto i = 0; i < COUNT; ++i) {
-    auto start_t = std::chrono::high_resolution_clock::now();
-    compute_pmf(p_vector);
-    auto end_t = std::chrono::high_resolution_clock::now();
-    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(end_t - start_t).count();
-    std::cout << "Loop " << i << " took " << ms << " ms" << std::endl;
-    total_ms += ms;
+  const auto COUNT = 3;
+  for (auto i = 0; i < 11; ++i) {
+    auto p = i * 0.1;
+    std::vector<long double> p_vector(N, p);
+    auto total_ms = 0.0;
+    for (auto j = 0; j < COUNT; ++j) {
+      auto start_t = std::chrono::high_resolution_clock::now();
+      auto pmf = compute_pmf(p_vector);
+      auto end_t = std::chrono::high_resolution_clock::now();
+      auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(end_t - start_t).count();
+      //std::cout << "Loop " << j << " took " << ms << " ms" << std::endl;
+      auto sum = static_cast<long double>(0.0);
+      for (auto val : pmf) {
+        sum += val;
+      }
+      if (1.0 - sum > 0.00001) {
+        std::cout << "Invalid pmf!" << std::endl;
+        exit(1);
+      }
+      total_ms += ms;
+    }
+    auto average_ms = static_cast<double>(total_ms) / static_cast<double>(COUNT);
+    std::cout << "p " << p << " took " << average_ms << " ms" << std::endl;
   }
-  auto average_ms = static_cast<double>(total_ms) / static_cast<double>(COUNT);
-  std::cout << "Average time: " << average_ms << " ms" << std::endl;
   return 0;
 }

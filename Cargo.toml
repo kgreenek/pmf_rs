@@ -5,3 +5,4 @@ authors = ["Kevin Greene <kgreenek@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+approx = "0.3.2"

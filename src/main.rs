@@ -1,3 +1,5 @@
+extern crate approx;
+
 fn compute_pmf(p_vector: &Vec<f64>) -> Vec<f64> {
     let n = p_vector.len();
     let mut pmf = vec![0.0; n + 1];
@@ -12,16 +14,21 @@ fn compute_pmf(p_vector: &Vec<f64>) -> Vec<f64> {
 }
 
 fn main() {
-    const COUNT: usize = 10;
-    let n = 15000;
-    let p_vector = vec![0.0; n];
-    let mut total_ms: u128 = 0;
-    for i in 0..COUNT {
-        let start_t = std::time::Instant::now();
-        compute_pmf(&p_vector);
-        let ms = start_t.elapsed().as_millis();
-        println!("Loop {} took {} ms", i, ms);
-        total_ms += ms;
+    const COUNT: usize = 3;
+    const N: usize = 15000;
+    for i in 0..11 {
+        let p = (i as f64) * 0.1;
+        let p_vector = vec![p; N];
+        let mut total_ms: u128 = 0;
+        for _ in 0..COUNT {
+            let start_t = std::time::Instant::now();
+            let pmf = compute_pmf(&p_vector);
+            let ms = start_t.elapsed().as_millis();
+            //println!("Loop {} took {} ms", i, ms);
+            let sum: f64 = pmf.iter().sum();
+            assert!(approx::relative_eq!(sum, 1.0, epsilon = 0.00001));
+            total_ms += ms;
+        }
+        println!("p {:0.1} took {:0.1} ms", p, (total_ms as f64) / (COUNT as f64));
     }
-    println!("Average time: {} ms", (total_ms as f64) / (COUNT as f64));
 }
