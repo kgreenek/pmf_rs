@@ -1,4 +1,5 @@
 extern crate approx;
+use core::arch::x86_64::{_MM_SET_FLUSH_ZERO_MODE, _MM_FLUSH_ZERO_ON};
 
 fn compute_pmf(p_vector: &Vec<f64>) -> Vec<f64> {
     let n = p_vector.len();
@@ -14,6 +15,9 @@ fn compute_pmf(p_vector: &Vec<f64>) -> Vec<f64> {
 }
 
 fn main() {
+    unsafe {
+        _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
+    }
     const COUNT: usize = 3;
     const N: usize = 15000;
     for i in 0..11 {

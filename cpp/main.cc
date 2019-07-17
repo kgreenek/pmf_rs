@@ -1,10 +1,11 @@
 #include <chrono>
 #include <iostream>
 #include <vector>
+#include <xmmintrin.h>
 
-std::vector<long double> compute_pmf(const std::vector<long double> &p_vector) {
+std::vector<double> compute_pmf(const std::vector<double> &p_vector) {
   auto N = p_vector.size();
-  std::vector<long double> pmf(N + 1, 0.0);
+  std::vector<double> pmf(N + 1, 0.0);
   pmf[0] = 1.0;
 
   for (int k = 0; k < N; k++) {
@@ -17,11 +18,13 @@ std::vector<long double> compute_pmf(const std::vector<long double> &p_vector) {
 }
 
 int main() {
+  // Disable denormalization, because it significantly affects performance for doubles.
+  _mm_setcsr(_mm_getcsr() | 0x0040 | 0x8000);
   const auto N = 15000;
   const auto COUNT = 3;
   for (auto i = 0; i < 11; ++i) {
     auto p = i * 0.1;
-    std::vector<long double> p_vector(N, p);
+    std::vector<double> p_vector(N, p);
     auto total_ms = 0.0;
     for (auto j = 0; j < COUNT; ++j) {
       auto start_t = std::chrono::high_resolution_clock::now();
@@ -29,7 +32,7 @@ int main() {
       auto end_t = std::chrono::high_resolution_clock::now();
       auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(end_t - start_t).count();
       //std::cout << "Loop " << j << " took " << ms << " ms" << std::endl;
-      auto sum = static_cast<long double>(0.0);
+      auto sum = static_cast<double>(0.0);
       for (auto val : pmf) {
         sum += val;
       }
